@@ -26,7 +26,7 @@ void Viewer::init(int w, int h){
     loadShaders();
 
         
-    /* === Earth === /
+    /* === Earth === */
     
     if(!_mesh.load(DATA_DIR"/models/earth.obj")) exit(1);
     _mesh.initVBA();
@@ -52,7 +52,7 @@ void Viewer::init(int w, int h){
     loadTexture(DATA_DIR"/textures/checkerboard.png");
     /**/
     
-    /* == Génération procédurale d'une texture et sa mip-map == */
+    /* == Génération procédurale d'une texture et sa mip-map == /
     if(!_mesh.load(DATA_DIR"/models/earth.obj")) exit(1);
     _mesh.initVBA();
     
@@ -76,9 +76,6 @@ void Viewer::init(int w, int h){
       texW = std::max(1, texW/2);
       texH = std::max(1, texH/2);
     }
-
-    loadTexture(DATA_DIR"/textures/earth.jpg");
-    loadTexture(DATA_DIR"/textures/earth_clouds.jpg");
     /**/
 
 
