@@ -43,13 +43,21 @@ void Viewer::init(int w, int h){
     //loadTexture(DATA_DIR"/textures/cow.jpg");
     /**/
 
-    
-    /* === Plane === */
-    if(!_mesh.load(DATA_DIR"/models/plan.obj")) exit(1);
+    /* === Jerry the Ogre === /
+    if(!_mesh.load(DATA_DIR"/models/bs_smile.obj")) exit(1);
     _mesh.initVBA();
     
-    loadTexture(DATA_DIR"/textures/normals.png");
-    loadTexture(DATA_DIR"/textures/diffuse.png");
+    loadTexture(DATA_DIR"/textures/earth_normal.jpg");
+    loadTexture(DATA_DIR"/textures/ao_smile.png");
+    /**/
+    
+    
+    /* === Earth === */
+    if(!_mesh.load(DATA_DIR"/models/earth2.obj")) exit(1);
+    _mesh.initVBA();
+    
+    loadTexture(DATA_DIR"/textures/earth_normal.jpg");
+    loadTexture(DATA_DIR"/textures/earth.jpg");
     /**/
     
     /* == Génération procédurale d'une texture et sa mip-map == /
@@ -154,7 +162,7 @@ void Viewer::drawScene()
     glUniformMatrix3fv(_shader.getUniformLocation("normal_mat"),1,GL_FALSE,matN.data());
 
     Vector3f lightDir = Vector3f(1,0,1).normalized();
-    lightDir = (matLocal2Cam.topLeftCorner<3,3>() * lightDir).normalized();
+    //lightDir = (matLocal2Cam.topLeftCorner<3,3>() * lightDir).normalized();
     glUniform3fv(_shader.getUniformLocation("lightDir"), 1, lightDir.data());
 
     _mesh.draw(_shader);

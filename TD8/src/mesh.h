@@ -51,8 +51,8 @@ protected:
       
       Vector3f position;
       Vector3f normal;
-      Vector3f tangente;
-      Vector3f bitangente;
+      Vector3f tangent;
+      Vector3f bitangent;
       Vector4f color;
       Vector2f texcoord;
     };

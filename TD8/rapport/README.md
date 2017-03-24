@@ -1,30 +1,24 @@
 # **Rapport Mondes3D - Master 1 Informatique**
 
 Author : Jimmy Gouraud  
-Date : 10/03/2017
+Date : 24/03/2017
 
-## TD7 - Texture
+## TD8 - Normal mapping
 
-J'ai réussi à implémenter l'intégralité du TD7
+J'ai réussi à implémenter l'intégralité du TD8.
 
-Vous pourrez tester les différents rendus facilement (j'ai mis des commentaires "interactif", il suffit de rajouter ou d'enlever une "*" pour commenter/décommenter toute une partie de code).
+###1 - Normal mapping sur un plan :
+![plane diffuse](plane_diffuse.png "plane diffuse")
+![plane normal](plane_normal.png "plane normal")
+![plane end](plane_end.png "plane end")
 
-Vous pourrez apprécier les différents rendus avec ces quelques images !
+###2 - Calcul du repère tangent
 
-Les basiques :
-![plane](plane.png "plane")
-![cow](cow.png "cow")
-![earth](earth.png "earth")
+![earth2 normal](earth2_normal.png "earth2 normal")
+![earth2 tangent](earth2_bitangent.png "earth2 tangent")
+![earth2 bitangent](earth2_bitangent.png "earth2 bitangent")
 
-Les plus originales :
-![cow starry](cow_starry.png "cow starry")
-![taurus](taurus.png "taurus")
+###3 - Normal mapping sur une sphère
 
-Les mipmap:
-![cow mipmap](cow_mipmap.png "cow mipmap")
-![earth mipmap](earth_mipmap.png "earth mipmap")
-
-Les tout-en-un :
-![earth mipmap clouds](earth_mipmap_clouds.png "earth mipmap clouds")
-
-
+![earth2 normal without texture](earth2_normal_without_texture.png "earth2 normal without texture")
+![earth2 normal with texture](earth2_normal_with_texture.png "earth2 normal with texture")

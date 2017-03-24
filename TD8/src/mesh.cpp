@@ -25,8 +25,8 @@ void Mesh::computeNormals()
   // pass 1: set the normal to 0
   for (unsigned int i = 0; i < mVertices.size(); ++i) {
     mVertices[i].normal = Vector3f::Zero();
-    mVertices[i].tangente = Vector3f::Zero();
-    mVertices[i].bitangente = Vector3f::Zero();    
+    mVertices[i].tangent = Vector3f::Zero();
+    mVertices[i].bitangent = Vector3f::Zero();    
   }
   
   // pass 2: compute face normals and accumulate
@@ -42,18 +42,16 @@ void Mesh::computeNormals()
     
     Vector3f normal = q1.cross(q2);
 
-    Matrix2f m;
-    
-    m << v1.texcoord[0],  v2.texcoord[0],
-         v1.texcoord[1],  v2.texcoord[1];
-    m.inverse();
+    Matrix2f mat;
+    mat << v1.texcoord[0],  v2.texcoord[0],
+           v1.texcoord[1],  v2.texcoord[1];
 
     Matrix<float, 3, 2> q1q2;
     q1q2 << q1[0], q2[0],
             q1[1], q2[1],
             q1[2], q2[2];
     
-    Matrix<float, 3, 2> TB = q1q2 * m;
+    Matrix<float, 3, 2> TB = q1q2 * mat.inverse();
 
     Vector3f T = TB.col(0);
     Vector3f B = TB.col(1);
@@ -62,28 +60,27 @@ void Mesh::computeNormals()
     v1.normal += normal;
     v2.normal += normal;
     
-    v0.tangente += T;
-    v1.tangente += T;
-    v2.tangente += T;
+    v0.tangent += T;
+    v1.tangent += T;
+    v2.tangent += T;
     
-    v0.bitangente += B;
-    v1.bitangente += B;
-    v2.bitangente += B; 
+    v0.bitangent += B;
+    v1.bitangent += B;
+    v2.bitangent += B; 
   }
+
   
   // pass 3: normalize
   for (unsigned int i = 0; i < mVertices.size(); ++i) {
-    mVertices[i].normal.normalize();
-    
-    mVertices[i].tangente -= (mVertices[i].normal.dot(mVertices[i].tangente)) * mVertices[i].normal;
-    mVertices[i].tangente.normalize();
+    mVertices[i].tangent -= mVertices[i].normal.dot(mVertices[i].tangent) * mVertices[i].normal;
+    mVertices[i].bitangent -= mVertices[i].normal.dot(mVertices[i].bitangent) * mVertices[i].normal - mVertices[i].tangent.dot(mVertices[i].bitangent) * mVertices[i].tangent / mVertices[i].tangent.norm();
 
-    mVertices[i].bitangente -= (mVertices[i].normal.dot(mVertices[i].bitangente)) * mVertices[i].normal
-      + (mVertices[i].tangente.dot(mVertices[i].bitangente) * mVertices[i].tangente / mVertices[i].tangente.norm());
-    mVertices[i].bitangente.normalize();
+    mVertices[i].normal.normalize();
+    mVertices[i].tangent.normalize();
+    mVertices[i].bitangent.normalize();
   }
-  
 }
+
 
 void Mesh::initVBA()
 {
