@@ -70,16 +70,18 @@ void Mesh::draw(const Shader &shd)
 
   // 1 - get id of the attribute "vtx_position" as declared as "in vec3 vtx_position" in the vertex shader
   int vertex_loc = shd.getAttribLocation("vtx_position");
-  // 2 - tells OpenGL where to find the x, y, and z coefficients:
-  glVertexAttribPointer(vertex_loc,     // id of the attribute
-                        3,              // number of coefficients (here 3 for x, y, z)
-                        GL_FLOAT,       // type of the coefficients (here float)
-                        GL_FALSE,       // for fixed-point number types only
-                        sizeof(Vertex), // number of bytes between the x coefficient of two vertices
-                                        // (e.g. number of bytes between x_0 and x_1)
-                        0);             // number of bytes to get x_0
-  // 3 - activate this stream of vertex attribute
-  glEnableVertexAttribArray(vertex_loc);
+  if(vertex_loc>=0) {
+    // 2 - tells OpenGL where to find the x, y, and z coefficients:
+    glVertexAttribPointer(vertex_loc,     // id of the attribute
+			  3,              // number of coefficients (here 3 for x, y, z)
+			  GL_FLOAT,       // type of the coefficients (here float)
+			  GL_FALSE,       // for fixed-point number types only
+			  sizeof(Vertex), // number of bytes between the x coefficient of two vertices
+			  // (e.g. number of bytes between x_0 and x_1)
+			  0);             // number of bytes to get x_0
+    // 3 - activate this stream of vertex attribute
+    glEnableVertexAttribArray(vertex_loc);
+  }
   
   int normal_loc = shd.getAttribLocation("vtx_normal");
   if(normal_loc>=0)
@@ -104,14 +106,12 @@ void Mesh::draw(const Shader &shd)
 
   // send the geometry
   glDrawElements(GL_TRIANGLES, 3*mFaces.size(), GL_UNSIGNED_INT, 0);
-
-  // at this point the mesh has been drawn and raserized into the framebuffer!
-  glDisableVertexAttribArray(vertex_loc);
   
   if(normal_loc>=0) glDisableVertexAttribArray(normal_loc);
   if(color_loc>=0)  glDisableVertexAttribArray(color_loc);
   if(texcoord_loc>=0)  glDisableVertexAttribArray(texcoord_loc);
-
+  if(vertex_loc>=0)  glDisableVertexAttribArray(vertex_loc);
+  
   checkError();
 }
 
