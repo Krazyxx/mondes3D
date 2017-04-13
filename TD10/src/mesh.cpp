@@ -23,25 +23,37 @@ void Mesh::subdivide()
   Surface_mesh::Vertex_iterator vit;
   for(vit = mHalfEdge.vertices_begin(); vit != mHalfEdge.vertices_end(); ++vit) { // Parcours chaque sommets
     Surface_mesh::Halfedge he = mHalfEdge.halfedge(*vit);
-
     Vector3f pos = Vector3f::Zero(); // Contient la somme des positions
-    float d = 0;
-    do {
-      pos += vertices[mHalfEdge.to_vertex(he)];
-      he = mHalfEdge.next_halfedge(mHalfEdge.opposite_halfedge(he));
-      d++;
-    } while (he != mHalfEdge.halfedge(*vit));
-
-    float beta = 0;
-    if (beta == 3) {
-      beta = 3.0/16.0;
+    
+    if (mHalfEdge.is_boundary(*vit)) {
+      pos += (3.0/4.0) * vertices[*vit];
+      do {
+	if (mHalfEdge.is_boundary(mHalfEdge.edge(he))) {
+	  pos += (1.0/8.0) * mHalfEdge.position(mHalfEdge.to_vertex(he));
+	}
+	he = mHalfEdge.next_halfedge(mHalfEdge.opposite_halfedge(he));
+      } while (he != mHalfEdge.halfedge(*vit));
     } else {
-      beta = (1.0/d) * (5.0/8.0 - (3.0/8.0 + (1.0/4.0) * cos(2*M_PI/d)) * (3.0/8.0 + (1.0/4.0) * cos(2*M_PI/d)) ); 
+      float d = 0;
+      do {
+	d++;
+	pos += vertices[mHalfEdge.to_vertex(he)];
+	he = mHalfEdge.next_halfedge(mHalfEdge.opposite_halfedge(he));
+      } while (he != mHalfEdge.halfedge(*vit));
+
+      float beta = 0;
+      if (d == 3) {
+	beta = 3.0/16.0;
+      } else {
+	beta = (1.0/d) * (5.0/8.0 - (3.0/8.0 + (1.0/4.0) * cos(2*M_PI/d)) * (3.0/8.0 + (1.0/4.0) * cos(2*M_PI/d))); 
+      }
+
+      pos = (1 - beta * d) * vertices[*vit] + beta * pos;
     }
-	
-    pos = (1 - beta * d) * vertices[*vit] + beta * pos;
-    vertex_mapping[*vit] = newHalfEdge.add_vertex(pos); // on rajoute les sommets initiaux repositionnés
-  }
+    
+    // on rajoute les sommets initiaux repositionnés
+    vertex_mapping[*vit] = newHalfEdge.add_vertex(pos);
+}
   
   
   // ==== Partie 1 ====
@@ -52,13 +64,19 @@ void Mesh::subdivide()
     Surface_mesh::Halfedge he = mHalfEdge.halfedge(*eit, 0);
     
     Vector3f v0 = mHalfEdge.position(mHalfEdge.to_vertex(he));
-    Vector3f v1 = mHalfEdge.position(mHalfEdge.to_vertex(mHalfEdge.next_halfedge(he)));
     Vector3f v2 = mHalfEdge.position(mHalfEdge.to_vertex(mHalfEdge.opposite_halfedge(he)));
-    Vector3f v3 = mHalfEdge.position(mHalfEdge.to_vertex(mHalfEdge.opposite_halfedge(mHalfEdge.next_halfedge(he))));
     
-    Vector3f u1 = (3.0/8.0) * v0 + (3.0/8.0) * v2 + (1.0/8.0) * v1 + (1.0/8.0) * v3;
+    Vector3f u;
+    if (mHalfEdge.is_boundary(mHalfEdge.edge(he))) {
+      u = (1.0/2.0) * (v0 + v2);
+    } else {
+      Vector3f v3 = mHalfEdge.position(mHalfEdge.to_vertex(mHalfEdge.next_halfedge(he)));
+      Vector3f v1 = mHalfEdge.position(mHalfEdge.to_vertex(mHalfEdge.next_halfedge(mHalfEdge.opposite_halfedge(he))));
+      u = (3.0/8.0) * (v0 + v2) + (1.0/8.0) * (v1 + v3);
+    }
     
-    edge_mapping[*eit] = newHalfEdge.add_vertex(u1); // On rajoute les nouveaux sommets (qui sont sur les arêtes)
+    // On rajoute les nouveaux sommets (qui sont sur les arêtes)
+    edge_mapping[*eit] = newHalfEdge.add_vertex(u); 
   }
 
   
@@ -78,10 +96,10 @@ void Mesh::subdivide()
     Surface_mesh::Vertex u2 = edge_mapping[mHalfEdge.edge(he)];
 
     // Create the new 4 faces
-    newHalfEdge.add_triangle(v0,u1,u4);
-    newHalfEdge.add_triangle(u4,u1,u2);
-    newHalfEdge.add_triangle(u1,v2,u2);
-    newHalfEdge.add_triangle(v3,u4,u2);
+    newHalfEdge.add_triangle(v0,u4,u1);
+    newHalfEdge.add_triangle(u4,v3,u2);
+    newHalfEdge.add_triangle(u2,v2,u1);
+    newHalfEdge.add_triangle(u1,u4,u2);
   }
   
   mHalfEdge = newHalfEdge;
@@ -168,7 +186,7 @@ void Mesh::updateHalfedgeToMesh()
       } while (++fvit != fvend);
     }
 
-  //updateNormals();
+  updateNormals();
 }
 
 void Mesh::init()
