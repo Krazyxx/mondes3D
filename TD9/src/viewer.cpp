@@ -5,7 +5,7 @@
 using namespace Eigen;
 
 Viewer::Viewer()
-  : _winWidth(0), _winHeight(0), _theta(0), _rotate(false)
+  : _winWidth(0), _winHeight(0), _theta(0), _rotate(false), _torsion(0), _coef(0)
 {
 }
 
@@ -77,7 +77,8 @@ void Viewer::drawScene()
     glBindTexture(GL_TEXTURE_2D, _texid);
     glActiveTexture(GL_TEXTURE0);
     glUniform1i(_shader.getUniformLocation("colormap"), 0);
-
+    glUniform1f(_shader.getUniformLocation("rotation"), _torsion);
+    
     _mesh.draw(_shader);
 
     _shader.deactivate();
@@ -161,9 +162,13 @@ void Viewer::keyPressed(int key, int action, int /*mods*/)
   {
     if (key==GLFW_KEY_UP)
     {
+      _torsion += _coef;
+      _coef += 0.1;
     }
     else if (key==GLFW_KEY_DOWN)
     {
+      _torsion -= _coef;
+      _coef -= 0.1;
     }
     else if (key==GLFW_KEY_LEFT)
     {

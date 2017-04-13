@@ -37,7 +37,9 @@ private:
     Mesh   _mesh;
 
     int _texid;
-
+    float _torsion;
+    float _coef;
+    
     float _theta;
     bool _rotate;
 

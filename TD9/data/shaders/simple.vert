@@ -6,6 +6,7 @@ uniform mat4 obj_mat;
 uniform mat4 proj_mat;
 uniform mat4 view_mat;
 uniform mat3 normal_mat;
+uniform float rotation;
 
 in vec3 vtx_position;
 in vec3 vtx_normal;
@@ -14,6 +15,18 @@ in vec2 vtx_texcoord;
 out vec3 v_normal;
 out vec3 v_view;
 out vec2 v_uv;
+
+mat4 rotationMatrix(vec3 u, float angle)
+{
+    float s = sin(angle);
+    float c = cos(angle);
+
+    return mat4(u.x * u.x * (1 - c) + c,       u.x * u.y * (1 - c) - u.z * s, u.x * u.z * (1 - c) + u.y * s, 0.0,
+                u.x * u.y * (1 - c) + u.z * s, u.y * u.y * (1 - c) + c,       u.y * u.z * (1 - c) - u.x * s, 0.0,
+                u.x * u.z * (1 - c) - u.y * s, u.y * u.z * (1 - c) + u.x * s, u.z * u.z * (1 - c) + c,       0.0,
+                0.0,                           0.0,                           0.0,                           1.0);
+}
+
 
 vec3 cylinder(vec2 uv, vec3 A, vec3 B, float r)
 {
@@ -63,16 +76,21 @@ vec3 bezier(float u, mat4x3 B, out mat3 F)
   return res;
 }
 
-vec3 cylBezierYZ(vec2 uv, mat4x3 B, float r)
+vec3 cylBezier(vec2 uv, mat4x3 B, float r)
 {
   mat3 F;
   vec3 center = bezier(uv.y, B, F);
   
   float angle = 2 * M_PI * uv.x;
-  float x = r * cos(angle + uv.y * 20 * M_PI);
-  float y = r * sin(angle + uv.y * 20 * M_PI);
+  float x = r * cos(angle + uv.y);
+  float y = r * sin(angle + uv.y);
+  
+  mat4 m = transpose(inverse(rotationMatrix(normalize(F[0]), uv.x * rotation)));
 
-  return F * vec3(0, x, y) + center;
+  vec3 normal = (m * vec4(F[2], 1.0)).xyz;
+  vec3 binormal = (m * vec4(F[1], 1.0)).xyz;
+  
+  return x * binormal + y * normal + center;
 }
 
 /* === BEZIER 1 === 
@@ -114,12 +132,12 @@ void main()
   
   /* Bezier */
   mat4x3 B;
-  B[0] = vec3(-1,0, 2);
-  B[1] = vec3(-0.3, 0, 4);
-  B[2] = vec3(0.3, 0, 1);
-  B[3] = vec3(1, 0, -0.5);
-  
-  vec3 position = cylBezierYZ(vtx_texcoord, B, 0.1);
+  B[0] = vec3(-0.5, -1, -1);
+  B[1] = vec3(1.5,   1, -0.3);
+  B[2] = vec3(-1.5,  1, 0.3);
+  B[3] = vec3(0.5,  -1, 1);
+
+  vec3 position = cylBezier(vtx_texcoord, B, 0.1);
   /**/
   
   v_uv = vtx_texcoord;
